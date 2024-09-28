@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Final del Torneo Matemático Categoría B</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+        }
+        .container {
+            max-width: 1100px;
+            margin: 0 auto;
+        }
+        img {
+            max-width: 100%;
+            height: auto;
+        }
+        .img-presentacion {
+            max-width: 30%; /* Reduce el tamaño al 50% */
+            height: auto;
+        }
+        .input-group {
+            margin-top: 20px;
+        }
+        .input-group label {
+            font-size: 18px;
+        }
+        .input-group input {
+            font-size: 18px;
+            padding: 10px;
+            width: 200px;
+        }
+        .btn {
+            font-size: 18px;
+            padding: 10px 20px;
+            margin-top: 20px;
+        }
+        .message, .intentos, .fallos {
+            margin-top: 20px;
+            font-size: 18px;
+        }
+        #cronometro {
+            font-size: 20px;
+            font-weight: bold;
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Final del Torneo Matemático Categoría B</h1>
+        <h2>Colegio Cristiano Fuente de Vida</h2>
+
+        <!-- Imagen de presentación -->
+        <img id="presentacion-imagen" class="img-presentacion" src="presentacion.jpg" alt="Presentación del Torneo">
+
+        <!-- Ingreso del nombre del equipo -->
+        <div class="input-group">
+            <label for="equipo">Nombre del equipo:</label><br>
+            <input type="text" id="equipo" placeholder="Ingresa el nombre del equipo">
+        </div>
+        <button class="btn" onclick="iniciarTorneo()">Comenzar Torneo</button>
+
+        <!-- Imagen de la fase del problema -->
+        <div id="fase-container" style="display: none;">
+            <img id="fase-imagen" src="pb1.jpg" alt="Imagen Fase">
+            <div class="input-group">
+                <label for="respuesta">Ingresa la respuesta correcta:</label><br>
+                <input type="text" id="respuesta" placeholder="Tu respuesta">
+            </div>
+            <button class="btn" onclick="verificarRespuesta()">Verificar</button>
+
+            <!-- Cronómetro -->
+            <div id="cronometro">Tiempo: 00:00</div>
+
+            <!-- Mensajes y contadores -->
+            <div id="message" class="message"></div>
+            <div id="intentos" class="intentos">Intentos: 0</div>
+            <div id="fallos" class="fallos">Fallos: 0</div>
+        </div>
+    </div>
+
+    <script>
+        const imagenes = ["p1.jpg", "p2.jpg", "p3.jpg", "p4.jpg", "p5.jpg", "p6.jpg", "p7.jpg", "p8.jpg", "p9.jpg", "p10.jpg"];
+        const numerosCorrectos = [15, 124, 20, 3.7, 42, 40, 48, 32, 2400, 338.4];
+        let faseActual = 0;
+        let intentos = 0;
+        let fallos = 0;
+        let intervalo;
+        let segundos = 0;
+        let minutos = 0;
+        let nombreEquipo = '';
+
+        function mostrarFase() {
+            // Cambia la imagen
+            const imgElement = document.getElementById('fase-imagen');
+            imgElement.src = imagenes[faseActual];
+
+            // Limpia el mensaje y la respuesta
+            document.getElementById('respuesta').value = '';
+            document.getElementById('message').innerText = '';
+            document.getElementById('intentos').innerText = 'Intentos: 0';
+            intentos = 0;
+        }
+
+        function verificarRespuesta() {
+            const respuestaUsuario = parseFloat(document.getElementById('respuesta').value);
+            intentos++;
+            document.getElementById('intentos').innerText = `Intentos: ${intentos}`;
+
+            if (isNaN(respuestaUsuario)) {
+                document.getElementById('message').innerText = 'Por favor, ingresa un número válido.';
+                return;
+            }
+
+            if (respuestaUsuario === numerosCorrectos[faseActual]) {
+                if (faseActual < imagenes.length - 1) {
+                    faseActual++;
+                    mostrarFase();
+                } else {
+                    document.getElementById('message').innerText = `¡Felicidades, ${nombreEquipo}! Has completado todas las fases correctamente y eres el ganador.`;
+                    clearInterval(intervalo); // Detiene el cronómetro
+                    document.querySelector('.btn').disabled = true;
+                }
+            } else {
+                document.getElementById('message').innerText = 'Número incorrecto, inténtalo de nuevo.';
+                fallos++;
+                document.getElementById('fallos').innerText = `Fallos: ${fallos}`;
+            }
+        }
+
+        function iniciarCronometro() {
+            intervalo = setInterval(() => {
+                segundos++;
+                if (segundos === 60) {
+                    minutos++;
+                    segundos = 0;
+                }
+                const minutosStr = minutos < 10 ? `0${minutos}` : minutos;
+                const segundosStr = segundos < 10 ? `0${segundos}` : segundos;
+                document.getElementById('cronometro').innerText = `Tiempo: ${minutosStr}:${segundosStr}`;
+            }, 1000);
+        }
+
+        function iniciarTorneo() {
+            nombreEquipo = document.getElementById('equipo').value;
+            if (nombreEquipo === '') {
+                alert('Por favor, ingresa el nombre del equipo antes de comenzar.');
+                return;
+            }
+
+            // Oculta la imagen de presentación y muestra las fases del torneo
+            document.getElementById('presentacion-imagen').style.display = 'none';
+            document.querySelector('.input-group').style.display = 'none';
+            document.querySelector('.btn').style.display = 'none';
+            document.getElementById('fase-container').style.display = 'block';
+
+            // Inicia el cronómetro
+            iniciarCronometro();
+
+            // Muestra la primera fase
+            mostrarFase();
+        }
+    </script>
+</body>
+</html>
